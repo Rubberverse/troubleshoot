@@ -1,21 +1,37 @@
-## 🧤 Environmental Variables - CADDY_ENVIRONMENT
+# Container Launch
 
-- **Your CADDY_ENVIRONMENT environmental variable is invalid!**
+#### Execution problems
 
-In order to run the image, you need to choose between two environments. Each one of them does something a bit different than the other one, mainly:
+> Exec format error
 
-`TEST` will run Caddy in background and listen actively to any config changes, **NOT RECOMMENDED FOR USE IN PRODUCTION** by Caddy developers and us!
+You're running a wrong image for your architecture. Either use qemu-server to emulate it or switch to correct architecture. It might also be an issue with the container, if so create an issue
 
-`PROD` will run Caddy but won't listen to any config changes
+
+#### Port binding
+
+> bind 80: permission denied
+
+Alpine container can't bind to 80 despite all my efforts to make libcap work on it. You either can use different port inside the container by changing Caddyfile and pointing it to different port on http & https ex. 8080, 8443 or pass sysctl argument to it.
+
+
+# Environmental Variables
+
+#### CADDY_ENVIRONMENT
+
+> Your CADDY_ENVIRONMENT environmental variable is invalid!
+
+In order to run the image, you need to choose between two environments. Each one of them does something a bit different than the other one, mainly: `TEST` or `PROD`
+
+`TEST` variable will launch Caddy in background with automatic config reload, **this isn't recommended for production for obvious reasons**, meanwhile `PROD` variable will launch Caddy in foreground without dynamic config reload.
 
 To choose your environment, pass CADDY_ENVIRONMENT with the environment type you want to use ex. `CADDY_ENVIRONMENT=PROD`. 
 
 > [!NOTE]
 > Instead of restarting your container, make use of Caddy's admin endpoint. Simply point it to localhost:2019 with `admin localhost:2019` and then run `podman exec -t container_name caddy reload` to reload the config
 
-## 🏗️ Environmental Variables - ADAPTER_TYPE
+#### ADAPTER_TYPE
 
-- **Potentially invalid ADAPTER_TYPE value**
+> Potentially invalid ADAPTER_TYPE value
 
 If you're using a config adapter that's not one of the following: `caddyfile`, `json`, `yaml` in your custom-built image, then you can discard this error.
 
@@ -24,9 +40,9 @@ However if you're using our Caddy image, it means that your `ADAPTER_TYPE` envir
 > [!CAUTION]
 > Passing yaml will be seen as valid option but this might lack the modules needed to actually make use of it so your container might die afterwards
 
-## ✈️ Environmental Variables - CONFIG_PATH
+#### CONFIG_PATH
 
-- **Your CONFIG_PATH is empty! It is required to launch the container successfully!**
+> Your CONFIG_PATH is empty! It is required to launch the container successfully!
 
 You **must** specify a path where Caddyfile/caddy.json/caddy.yaml will residue inside the container. This can be _anything_ as long as the file exists in this path, by default it is recommended to utilize `/app/configs/Caddyfile` or `/app/configs/caddy.json`
 
