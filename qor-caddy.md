@@ -21,7 +21,7 @@ Alpine containers will refuse to bind to ports 80 and 443 no matter what you're 
 
 This image switches between two configurations, one tailored for non-production, testing use and another one inteded for production. Non-production value of CADDY_ENVIRONMENT is `test` where production one is `prod`.
 
-The difference between them both is that one enables config watching so Caddy will dynamically reload config on any change where the other one has that turned off as recommended by Caddy wiki itself. If you need a way to dynamically reload your configuration, turn on admin endpoint with `admin localhost:2019` in Caddyfile and issue command `podman exec -t qor-caddy caddy reload /app/configs/Caddyfile`.
+The difference between them both is that one enables config watching so Caddy will dynamically reload config on any change where the other one has that turned off as recommended by Caddy wiki itself. If you need a way to dynamically reload your configuration, turn on admin endpoint with `admin localhost:2019` in Caddyfile and issue command `podman exec -t qor-caddy /app/caddy reload -c /app/configs/Caddyfile`.
 
 > **Your CONFIG_PATH is empty! It is required to launch the container successfully!**
 
