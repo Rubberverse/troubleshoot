@@ -8,7 +8,7 @@ You're running a wrong image for your architecture. Either use qemu-server to em
 
 > **bind 80: permission denied**
 
-Alpine containers will refuse to bind to ports 80 and 443 unless you expose the same ports on your host. No matter how many times one can set capabilities on Alpine Linux image, it's always the same outcome so you need to give your rootless host user access to privileged ports or you just remap it to something higher via Caddyfile.
+Alpine containers will refuse to bind to ports 80 and 443 no matter what you're going to do so your best bet is to make it use ports higher than 1000. Debian image doesn't seem to have such limitation.
 
 > [!NOTE]
 > For plugin usage guide, it's recommended to check out each plugins repository for configuration guidance. They provide examples there on how to configure them! Also keep in mind that not everything included in this image will be compatible when used together, some things may clash so make sure to test stuff before pushing it live. You can find list of plugins (aka modules) on our main repo, just click on the name and it will show you their repository - https://github.com/Rubberverse/qor-caddy
