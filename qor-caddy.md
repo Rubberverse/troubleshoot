@@ -1,50 +1,34 @@
 # Container Launch
 
-#### Execution problems
+#### Permission issues and errors
 
 > Exec format error
 
 You're running a wrong image for your architecture. Either use qemu-server to emulate it or switch to correct architecture. It might also be an issue with the container, if so create an issue
 
+> **bind 80: permission denied**
 
-#### Port binding
-
-> bind 80: permission denied
-
-Alpine container can't bind to 80 despite all my efforts to make libcap work on it. You either can use different port inside the container by changing Caddyfile and pointing it to different port on http & https ex. 8080, 8443 or pass sysctl argument to it.
-
-
-# Environmental Variables
-
-#### CADDY_ENVIRONMENT
-
-> Your CADDY_ENVIRONMENT environmental variable is invalid!
-
-In order to run the image, you need to choose between two environments. Each one of them does something a bit different than the other one, mainly: `TEST` or `PROD`
-
-`TEST` variable will launch Caddy in background with automatic config reload, **this isn't recommended for production for obvious reasons**, meanwhile `PROD` variable will launch Caddy in foreground without dynamic config reload.
-
-To choose your environment, pass CADDY_ENVIRONMENT with the environment type you want to use ex. `CADDY_ENVIRONMENT=PROD`. 
+Alpine containers will refuse to bind to ports 80 and 443 unless you expose the same ports on your host. No matter how many times one can set capabilities on Alpine Linux image, it's always the same outcome so you need to give your rootless host user access to privileged ports or you just remap it to something higher via Caddyfile.
 
 > [!NOTE]
-> Instead of restarting your container, make use of Caddy's admin endpoint. Simply point it to localhost:2019 with `admin localhost:2019` and then run `podman exec -t container_name caddy reload` to reload the config
+> For plugin usage guide, it's recommended to check out each plugins repository for configuration guidance. They provide examples there on how to configure them! Also keep in mind that not everything included in this image will be compatible when used together, some things may clash so make sure to test stuff before pushing it live. You can find list of plugins (aka modules) on our main repo, just click on the name and it will show you their repository - https://github.com/Rubberverse/qor-caddy
 
-#### ADAPTER_TYPE
+# Entrypoint Script
 
-> Potentially invalid ADAPTER_TYPE value
+#### Missing, unset etc.
+
+> **Your CADDY_ENVIRONMENT environmental variable is invalid!**
+
+This image switches between two configurations, one tailored for non-production, testing use and another one inteded for production. Non-production value of CADDY_ENVIRONMENT is `test` where production one is `prod`.
+
+The difference between them both is that one enables config watching so Caddy will dynamically reload config on any change where the other one has that turned off as recommended by Caddy wiki itself. If you need a way to dynamically reload your configuration, turn on admin endpoint with `admin localhost:2019` in Caddyfile and issue command `podman exec -t qor-caddy caddy reload /app/configs/Caddyfile`.
+
+> **Your CONFIG_PATH is empty! It is required to launch the container successfully!**
+
+You need to specify a path where a Caddyfile, caddy.json or different type of Caddy configuration residues in. By default it's recommended to use `/app/configs/Caddyfile` and mount your own Caddyfile in that location, if you don't then it will just fail to launch since v0.17.0 no longer bundles a Caddyfile alongside the image.
+
+> **Potentially invalid ADAPTER_TYPE value**
 
 If you're using a config adapter that's not one of the following: `caddyfile`, `json`, `yaml` in your custom-built image, then you can discard this error.
 
-However if you're using our Caddy image, it means that your `ADAPTER_TYPE` environmental variable is set **wrong**. Please make sure it's one of the supported values which is `caddyfile` or `json`! 
-
-> [!CAUTION]
-> Passing yaml will be seen as valid option but this might lack the modules needed to actually make use of it so your container might die afterwards
-
-#### CONFIG_PATH
-
-> Your CONFIG_PATH is empty! It is required to launch the container successfully!
-
-You **must** specify a path where Caddyfile/caddy.json/caddy.yaml will residue inside the container. This can be _anything_ as long as the file exists in this path, by default it is recommended to utilize `/app/configs/Caddyfile` or `/app/configs/caddy.json`
-
-> [!WARNING]
-> Remember to mount a volume pointing to your local Caddyfile/caddy.json, otherwise you will get file not found error! By default it is recommended to mount your own config to `/app/configs/Caddyfile`
+However if you're using our Caddy image, it means that your `ADAPTER_TYPE` environmental variable is set **wrong**. Please make sure it's one of the supported values which is `caddyfile` or `json`! Technically we also allow yaml as valid option but we have no idea if it actually works, probably not since it needs a extra module so don't use that one.
