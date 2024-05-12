@@ -2,6 +2,10 @@
 
 Your one-stop guide to all sorts of errors!
 
+### ❌ line 0: syntax error: unexpected word (expecting ")") upon running Caddy
+
+This indicates that cross-compilation process failed and it produced a broken binary for the architecture. Please report it on our main repository by creating a GitHub issue!
+
 ### ❌ Exec format error
 
 You're running a wrong image for your architecture. Either use qemu-server to emulate it or switch to correct architecture.
